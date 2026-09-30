@@ -2,15 +2,20 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import sequelize from "./config/database.js";
+
 import categoryAwardsRoutes from "./routes/categoryAwards.routes.js";
+import streamingRoutes from "./routes/streaming.routes.js";
+
 import { globalRateLimiter } from "./config/rateLimiter.js";
 
-
 const app = express();
+
 app.use(cors());
 app.use(express.json());
-app.use(globalRateLimiter)
+app.use(globalRateLimiter);
+
 app.use("/api", categoryAwardsRoutes);
+app.use("/api/streaming", streamingRoutes);
 
 // Rotas da aplicação devem ser registradas aqui, antes dos handlers de 404/erro abaixo.
 
@@ -23,6 +28,7 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
     console.error(err);
+
     res.status(500).json({
         success: false,
         message: "Erro interno inesperado."
@@ -32,10 +38,17 @@ app.use((err, req, res, next) => {
 async function iniciarServidor() {
     try {
         await sequelize.authenticate();
+
         console.log("Banco de dados conectado!");
-        await sequelize.sync({ alter: true });
+
+        await sequelize.sync({
+            alter: true
+        });
+
         console.log("Tabelas sincronizadas!");
+
         const PORT = process.env.PORT || 3000;
+
         app.listen(PORT, () => {
             console.log(`Servidor rodando em http://localhost:${PORT}`);
         });
