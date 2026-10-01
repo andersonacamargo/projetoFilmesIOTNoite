@@ -39,7 +39,7 @@ export default function WinnersCatalog({ category, loading, error, onReload }) {
           <span className="font-label-sm text-label-sm uppercase tracking-widest text-secondary font-bold mb-1">
             Vencedores
           </span>
-          <h2 className="font-headline-xl text-headline-xl text-primary">
+          <h2 className="font-headline-xl-mobile text-headline-xl-mobile md:font-headline-xl md:text-headline-xl text-primary">
             {category ? formatCategoryName(category.categoryName) : "—"}
           </h2>
           {category?.categoryClass && (
@@ -67,7 +67,7 @@ export default function WinnersCatalog({ category, loading, error, onReload }) {
       )}
 
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-lg">
           {Array.from({ length: 6 }, (_, index) => (
             <CardSkeleton key={index} />
           ))}
@@ -101,7 +101,7 @@ export default function WinnersCatalog({ category, loading, error, onReload }) {
       )}
 
       {!loading && !error && winners.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-lg">
           {winners.map((winner) => (
             <WinnerCard key={winner.nominationId} winner={winner} />
           ))}

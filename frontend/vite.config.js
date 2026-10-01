@@ -5,6 +5,12 @@ import react from "@vitejs/plugin-react";
 // O proxy evita CORS e permite chamar "/api/..." direto do front em desenvolvimento.
 export default defineConfig({
   plugins: [react()],
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: "./src/test/setup.js",
+    exclude: ["e2e/**", "node_modules/**"],
+  },
   server: {
     port: 5173,
     proxy: {

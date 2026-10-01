@@ -17,18 +17,18 @@ export default function StatsRibbon({ stats, loading, error }) {
   ];
 
   return (
-    <section className="max-w-7xl mx-auto w-full py-space-xl">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+    <section aria-label="Estatísticas" className="max-w-7xl mx-auto w-full py-space-lg sm:py-space-xl">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-space-sm sm:gap-space-md">
         {items.map((item) => (
           <div
             key={item.label}
-            className="bg-surface-container-low p-space-md rounded-xl shadow-lg flex items-center gap-space-md"
+            className="bg-surface-container-low p-space-sm sm:p-space-md rounded-xl shadow-lg flex items-center gap-space-sm sm:gap-space-md"
           >
-            <div className="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
-              <MaterialIcon name={item.icon} className="text-[26px]" />
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0">
+              <MaterialIcon name={item.icon} className="text-[20px] sm:text-[26px]" />
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="font-headline-md text-headline-md text-primary leading-tight">
+              <span className="font-headline-sm text-headline-sm sm:font-headline-md sm:text-headline-md text-primary leading-tight">
                 {unavailable ? "—" : item.value.toLocaleString("pt-BR")}
               </span>
               <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline">

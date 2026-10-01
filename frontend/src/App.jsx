@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Header from "./components/Header.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import StatsRibbon from "./components/StatsRibbon.jsx";
@@ -31,6 +31,21 @@ function buildStats(categories) {
 export default function App() {
   const { categories, loading, error, reload } = useCategoryAwards();
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const menuButtonRef = useRef(null);
+
+  // Estável para não re-registrar o listener de Esc da gaveta a cada render.
+  // Ao fechar por Esc ou fundo escuro, devolve o foco ao botão ☰.
+  const closeDrawer = useCallback(() => {
+    setDrawerOpen(false);
+    menuButtonRef.current?.focus();
+  }, []);
+
+  // Ao escolher uma categoria, fecha a gaveta sem mover o foco.
+  function handleSelectCategory(id) {
+    setSelectedCategoryId(id);
+    setDrawerOpen(false);
+  }
 
   const stats = useMemo(() => buildStats(categories), [categories]);
 
@@ -45,18 +60,24 @@ export default function App() {
 
   return (
     <>
-      <Header />
+      <Header
+        drawerOpen={drawerOpen}
+        onToggleDrawer={() => setDrawerOpen((open) => !open)}
+        menuButtonRef={menuButtonRef}
+      />
 
       <Sidebar
         categories={categories}
         loading={loading}
         error={error}
         selectedCategoryId={selectedCategory?.categoryId ?? null}
-        onSelectCategory={setSelectedCategoryId}
+        open={drawerOpen}
+        onClose={closeDrawer}
+        onSelectCategory={handleSelectCategory}
       />
 
-      <div className="pl-72">
-        <main className="w-full min-h-[calc(100vh-5rem)] pt-20 px-gutter bg-surface">
+      <div className="lg:pl-72">
+        <main className="w-full min-h-[calc(100vh-5rem)] pt-20 px-gutter-mobile sm:px-gutter bg-surface">
           <div className="flex flex-col w-full">
             <StatsRibbon stats={stats} loading={loading} error={error} />
             <WinnersCatalog
