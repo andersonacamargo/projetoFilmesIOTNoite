@@ -21,7 +21,12 @@ import {
   } from '../models/relationships.js';
   
   /**
-   * Conta premiações ganhas por categoria e retorna os ganhadores agrupados.
+   * Conta premiações ganhas por categoria em uma cerimônia específica
+   * e retorna os ganhadores agrupados. Categorias sem vencedor na
+   * cerimônia não aparecem no resultado.
+   *
+   * @param {number|string} ceremonyId Número da cerimônia (ex: 96). Aceita
+   *   string numérica, pois pode vir de query string.
    *
    * @returns {Promise<Array<{
    *   categoryId: number,
@@ -39,7 +44,8 @@ import {
    *   }>
    * }>>}
    *
-   * @throws {Error} Quando a consulta ao banco ou o mapeamento falha.
+   * @throws {Error} Quando ceremonyId não é um inteiro >= 1, ou quando a
+   *   consulta ao banco ou o mapeamento falha.
    *
    * @example
    * // Exemplo de um item do array retornado:
@@ -61,7 +67,7 @@ import {
    * //   ]
    * // }
    */
-  export async function getWinsByCategory() {
+  export async function getWinsByCategory(id) {
     try {
       const categories = await Category.findAll({
         attributes: ['id', 'name', 'class'],
@@ -69,8 +75,8 @@ import {
           {
             model: Nomination,
             as: 'nominations',
-            required: false,
-            where: { winner: true },
+            required: true,
+            where: { winner: true, ceremony_id: id },
             attributes: ['id', 'category_label', 'note', 'citation'],
             include: [
               {
