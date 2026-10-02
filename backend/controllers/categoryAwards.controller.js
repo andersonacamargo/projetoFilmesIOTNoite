@@ -1,11 +1,20 @@
 // Controller de premiações por categoria
 // Traduz o resultado (ou erro) do service em resposta HTTP
 
-import { getWinsByCategory as getWinsByCategoryService } from "../services/categoryAwards.service.js";
+import * as service from "../services/categoryAwards.service.js";
 
-export async function getWinsByCategory(_req, res) {
+export async function getWinsByCategory(req, res) {
     try {
-        const data = await getWinsByCategoryService();
+        const { ceremony_id } = req.params
+
+        if (!/^\d+$/.test(ceremony_id)) {
+            return res.status(400).json({
+                success: false,
+                message: "ceremony_id deve ser um número inteiro positivo."
+            });
+        }
+
+        const data = await service.getWinsByCategory(Number(ceremony_id));
 
         return res.status(200).json({
             success: true,
