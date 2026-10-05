@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import cors from "cors";
+import { criarCors } from "./config/cors.js";
 import sequelize from "./config/database.js";
 
 import categoryAwardsRoutes from "./routes/categoryAwards.routes.js";
@@ -10,7 +10,7 @@ import { globalRateLimiter } from "./config/rateLimiter.js";
 
 const app = express();
 
-app.use(cors());
+app.use(criarCors());
 app.use(express.json());
 app.use(globalRateLimiter);
 
