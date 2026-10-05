@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "test": "node --experimental-test-module-mocks --test-concurrency=1 --test tests/controllers/categoryAwards.controller.test.js && node --experimental-test-module-mocks --test-concurrency=1 --test tests/controllers/streaming.controller.test.js && node --experimental-test-module-mocks --test-concurrency=1 --test tests/services/categoryAwards.service.test.js"
+    "test": "node --test tests/config/cors.test.js && node --experimental-test-module-mocks --test-concurrency=1 --test tests/controllers/categoryAwards.controller.test.js && node --experimental-test-module-mocks --test-concurrency=1 --test tests/controllers/streaming.controller.test.js && node --experimental-test-module-mocks --test-concurrency=1 --test tests/services/categoryAwards.service.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -51,6 +51,24 @@ describe("Sidebar", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it("mostra esqueletos enquanto carrega, sem botões de categoria", () => {
+    renderSidebar({ loading: true });
+    const nav = screen.getByRole("navigation", { name: "Categorias" });
+    expect(nav.querySelectorAll(".animate-pulse")).toHaveLength(10);
+    expect(screen.queryByRole("button", { name: /Directing/ })).toBeNull();
+  });
+
+  it("avisa quando as categorias não puderam ser carregadas", () => {
+    renderSidebar({ error: "fora do ar" });
+    expect(screen.getByText("Categorias indisponíveis.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Directing/ })).toBeNull();
+  });
+
+  it("avisa quando a API não devolve categorias", () => {
+    renderSidebar({ categories: [] });
+    expect(screen.getByText("Nenhuma categoria retornada.")).toBeInTheDocument();
+  });
+
   it("seleciona a categoria clicada", async () => {
     const { onSelectCategory } = renderSidebar({ open: true });
     await userEvent.click(screen.getByRole("button", { name: /Directing/ }));

@@ -36,6 +36,7 @@ O Vite faz proxy de `/api` para `http://localhost:3000` (ver `vite.config.js`).
 
 | Variável | Obrigatória | Para que serve |
 | --- | --- | --- |
+| `VITE_API_URL` | só em produção | Endereço do backend publicado, sem `/api` no final (ex.: `https://seu-back.onrender.com`). Vazio no desenvolvimento, quando o proxy do Vite cuida de `/api`. O backend precisa liberar o domínio do front em `CORS_ORIGINS`. |
 | `VITE_TMDB_API_KEY` | não | Busca os pôsteres no TMDB pelo `imdb_id`. Sem ela, os cards mostram "Sem pôster" e o resto funciona normalmente. |
 
 Crie a chave em <https://www.themoviedb.org/settings/api> (opção *API Key (v3 auth)*).
@@ -103,8 +104,6 @@ src/
 
 ## Limitações conhecidas
 
-- **Layout apenas desktop.** A sidebar é fixa (`w-72`) e o conteúdo usa `pl-72`,
-  sem breakpoints — herdado do protótipo. Em telas estreitas há scroll horizontal.
 - **Só a rota `/api/category-awards` existe**, então a tela cobre apenas
   premiações vencedoras. Indicados que não venceram não são retornados pela API.
 
@@ -115,3 +114,12 @@ src/
 | `npm run dev` | Servidor de desenvolvimento com HMR |
 | `npm run build` | Build de produção em `dist/` |
 | `npm run preview` | Serve o build localmente |
+| `npm test` | Testes de componente e unidade (Vitest) |
+| `npm run test:coverage` | Testes com relatório de cobertura; falha se ficar abaixo de 100% |
+| `npm run test:e2e` | Testes de layout no Chrome (Playwright) |
+
+## Deploy na Vercel
+
+1. Importe o repositório na Vercel e defina **Root Directory** = `frontend` (o preset Vite já usa `npm run build` e a pasta `dist`).
+2. Em *Settings → Environment Variables*, cadastre `VITE_API_URL` (e, se quiser pôsteres, `VITE_TMDB_API_KEY`).
+3. No backend, inclua o domínio gerado pela Vercel em `CORS_ORIGINS`.

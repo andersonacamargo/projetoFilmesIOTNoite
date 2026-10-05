@@ -3,13 +3,16 @@
  *
  * Em desenvolvimento o Vite faz proxy de /api para http://localhost:3000
  * (ver vite.config.js), então as chamadas usam caminho relativo.
+ * Em produção (Vercel), VITE_API_URL aponta para o backend publicado.
  *
  * VITE_DATA_SOURCE no frontend/.env escolhe de onde vêm os dados:
  *   "api" (padrão) → backend em /api
  *   "planilha"     → src/data/category-awards.json, gerado da planilha por
  *                    scripts/build-awards-from-csv.js no mesmo formato da API
  */
-const BASE_URL = "/api";
+// VITE_API_URL: endereço do backend publicado (ex.: https://seu-back.onrender.com).
+// Vazio → caminho relativo, que no desenvolvimento passa pelo proxy do Vite.
+const BASE_URL = `${(import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "")}/api`;
 const DATA_SOURCE = import.meta.env.VITE_DATA_SOURCE === "planilha" ? "planilha" : "api";
 
 async function request(path) {

@@ -1,5 +1,6 @@
 import MaterialIcon from "./MaterialIcon.jsx";
 import { usePoster } from "../hooks/usePoster.js";
+import { joinNames } from "../utils/format.js";
 
 /**
  * Cartão de uma premiação vencedora.
@@ -8,13 +9,18 @@ import { usePoster } from "../hooks/usePoster.js";
  * `ceremony.year`, `categoryLabel`, `films[].title`, `films[].detail`,
  * `nominees[].name`, `citation` e `note`. O pôster é resolvido pelo
  * `films[].imdbId` no TMDB, já que o banco não guarda imagem.
+ *
+ * O nome do ganhador (`nominees`) é o título em destaque; o filme vem logo
+ * abaixo. Sem pessoa premiada, o filme assume o título.
  */
 export default function WinnerCard({ winner }) {
   const [mainFilm, ...otherFilms] = winner.films;
   const posterUrl = usePoster(mainFilm?.imdbId);
 
   const peopleNames = winner.nominees.map((person) => person.name);
-  const title = mainFilm?.title ?? peopleNames[0] ?? winner.categoryLabel;
+  const title = joinNames(peopleNames) || mainFilm?.title || winner.categoryLabel;
+  // O filme só ganha linha própria quando o título já é o nome do ganhador.
+  const filmSubtitle = peopleNames.length > 0 ? mainFilm?.title : null;
   const imdbUrl = mainFilm?.imdbId ? `https://www.imdb.com/title/${mainFilm.imdbId}/` : null;
 
   return (
@@ -23,7 +29,7 @@ export default function WinnerCard({ winner }) {
         {posterUrl ? (
           <img
             src={posterUrl}
-            alt={`Pôster de ${title}`}
+            alt={`Pôster de ${mainFilm.title}`}
             loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
           />
@@ -58,15 +64,15 @@ export default function WinnerCard({ winner }) {
         <div className="flex flex-col gap-space-xs">
           <h3 className="font-headline-md text-headline-md text-primary">{title}</h3>
 
-          {mainFilm?.detail && (
-            <span className="font-body-sm text-body-sm text-secondary italic">
-              {mainFilm.detail}
+          {filmSubtitle && (
+            <span className="font-label-sm text-label-sm uppercase tracking-wider text-secondary">
+              {filmSubtitle}
             </span>
           )}
 
-          {mainFilm && peopleNames.length > 0 && (
-            <span className="font-label-sm text-label-sm uppercase tracking-wider text-secondary">
-              {peopleNames.join(" • ")}
+          {mainFilm?.detail && (
+            <span className="font-body-sm text-body-sm text-secondary italic">
+              {mainFilm.detail}
             </span>
           )}
 
