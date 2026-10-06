@@ -25,8 +25,8 @@ import {
    * e retorna os ganhadores agrupados. Categorias sem vencedor na
    * cerimônia não aparecem no resultado.
    *
-   * @param {number|string} ceremonyId Número da cerimônia (ex: 96). Aceita
-   *   string numérica, pois pode vir de query string.
+   * @param {number|string} [ceremonyId] Número da cerimônia (ex: 96). Aceita
+   *   string numérica, pois pode vir de query string. Omitido = todas.
    *
    * @returns {Promise<Array<{
    *   categoryId: number,
@@ -68,6 +68,18 @@ import {
    * // }
    */
   export async function getWinsByCategory(id) {
+    // Sem id (undefined/null/""), devolve os ganhadores de todas as cerimônias.
+    const todasAsCerimonias = id === undefined || id === null || id === "";
+    const ceremonyId = todasAsCerimonias ? null : Number(id);
+
+    if (!todasAsCerimonias && !Number.isInteger(ceremonyId)) {
+      throw new Error(`ceremonyId inválido: ${JSON.stringify(id)}`);
+    }
+
+    if (!todasAsCerimonias && ceremonyId < 1) {
+      throw new Error(`ceremonyId inválido: ${JSON.stringify(id)}`);
+    }
+
     try {
       const categories = await Category.findAll({
         attributes: ['id', 'name', 'class'],
@@ -76,7 +88,9 @@ import {
             model: Nomination,
             as: 'nominations',
             required: true,
-            where: { winner: true, ceremony_id: id },
+            where: todasAsCerimonias
+              ? { winner: true }
+              : { winner: true, ceremony_id: ceremonyId },
             attributes: ['id', 'category_label', 'note', 'citation'],
             include: [
               {

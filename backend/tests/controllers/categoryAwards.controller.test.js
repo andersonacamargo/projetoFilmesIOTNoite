@@ -2,10 +2,12 @@ import { test, mock } from "node:test";
 import assert from "node:assert/strict";
 
 let serviceImplementation;
+let receivedId;
 
 mock.module("../../services/categoryAwards.service.js", {
     namedExports: {
-        getWinsByCategory: async () => {
+        getWinsByCategory: async (id) => {
+            receivedId = id;
             return serviceImplementation();
         }
     }
@@ -82,5 +84,48 @@ test(
             res.body.message,
             /db down/
         );
+    }
+);
+
+test(
+    "getWinsByCategory (controller) sem ceremony_id consulta todas as cerimônias",
+    async () => {
+        serviceImplementation = async () => [];
+        receivedId = "não chamado";
+
+        const res = buildRes();
+
+        await getWinsByCategory({ params: {} }, res);
+
+        assert.equal(res.statusCode, 200);
+        assert.equal(receivedId, undefined);
+    }
+);
+
+test(
+    "getWinsByCategory (controller) repassa ceremony_id numérico ao service",
+    async () => {
+        serviceImplementation = async () => [];
+
+        const res = buildRes();
+
+        await getWinsByCategory({ params: { ceremony_id: "96" } }, res);
+
+        assert.equal(res.statusCode, 200);
+        assert.equal(receivedId, 96);
+    }
+);
+
+test(
+    "getWinsByCategory (controller) responde 400 para ceremony_id inválido",
+    async () => {
+        for (const ceremony_id of ["abc", "0", "-1"]) {
+            const res = buildRes();
+
+            await getWinsByCategory({ params: { ceremony_id } }, res);
+
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.body.success, false);
+        }
     }
 );

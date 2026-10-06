@@ -17,7 +17,7 @@ function buildCategoryRow({ nominations = [] } = {}) {
 
 async function loadServiceWithMockedFindAll(t, findAllImpl) {
     t.mock.module("../../models/relationships.js", {
-        exports: {
+        namedExports: {
             Category: { findAll: findAllImpl },
             Nomination: {},
             Film: {},
@@ -139,7 +139,7 @@ test("getWinsByCategory aceita ceremonyId como string numérica", async (t) => {
     assert.equal(receivedOptions.include[0].where.ceremony_id, 96);
 });
 
-for (const invalid of [undefined, null, "", "abc", 0, -1, 2.5]) {
+for (const invalid of ["abc", 0, -1, 2.5]) {
     test(`getWinsByCategory rejeita ceremonyId inválido (${JSON.stringify(invalid)}) sem consultar o banco`, async (t) => {
         let called = false;
         const { getWinsByCategory } = await loadServiceWithMockedFindAll(t, async () => {
@@ -149,5 +149,20 @@ for (const invalid of [undefined, null, "", "abc", 0, -1, 2.5]) {
 
         await assert.rejects(() => getWinsByCategory(invalid), /ceremonyId inválido/);
         assert.equal(called, false);
+    });
+}
+
+
+for (const semId of [undefined, null, ""]) {
+    test(`getWinsByCategory sem ceremonyId (${JSON.stringify(semId)}) busca todas as cerimônias`, async (t) => {
+        let receivedOptions;
+        const { getWinsByCategory } = await loadServiceWithMockedFindAll(t, async (options) => {
+            receivedOptions = options;
+            return [];
+        });
+
+        await getWinsByCategory(semId);
+
+        assert.deepEqual(receivedOptions.include[0].where, { winner: true });
     });
 }
