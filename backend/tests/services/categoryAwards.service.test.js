@@ -17,7 +17,7 @@ function buildCategoryRow({ nominations = [] } = {}) {
 
 async function loadServiceWithMockedFindAll(t, findAllImpl) {
     t.mock.module("../../models/relationships.js", {
-        exports: {
+        namedExports: {
             Category: { findAll: findAllImpl },
             Nomination: {},
             Film: {},

@@ -3,6 +3,10 @@ import userEvent from "@testing-library/user-event";
 import App from "./App.jsx";
 
 vi.mock("./services/api.js", () => ({
+  getCeremonies: vi.fn().mockResolvedValue([
+    { id: 95, year: "2022" },
+    { id: 96, year: "2023" },
+  ]),
   getCategoryAwards: vi.fn().mockResolvedValue([
     { categoryId: 1, categoryName: "BEST PICTURE", categoryClass: "Title", winsCount: 0, winners: [] },
     { categoryId: 2, categoryName: "DIRECTING", categoryClass: "Directing", winsCount: 0, winners: [] },

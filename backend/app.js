@@ -5,6 +5,7 @@ import sequelize from "./config/database.js";
 
 import categoryAwardsRoutes from "./routes/categoryAwards.routes.js";
 import streamingRoutes from "./routes/streaming.routes.js";
+import ceremonyRoutes from "./routes/ceremony.routes.js";
 
 import { globalRateLimiter } from "./config/rateLimiter.js";
 
@@ -16,6 +17,7 @@ app.use(globalRateLimiter);
 
 app.use("/api", categoryAwardsRoutes);
 app.use("/api/streaming", streamingRoutes);
+app.use("/api", ceremonyRoutes);
 
 // Rotas da aplicação devem ser registradas aqui, antes dos handlers de 404/erro abaixo.
 

@@ -50,7 +50,7 @@ test(
 
         const res = buildRes();
 
-        await getWinsByCategory({}, res);
+        await getWinsByCategory({ params: { ceremony_id: "96" } }, res);
 
         assert.equal(res.statusCode, 200);
 
@@ -73,7 +73,7 @@ test(
 
         const res = buildRes();
 
-        await getWinsByCategory({}, res);
+        await getWinsByCategory({ params: { ceremony_id: "96" } }, res);
 
         assert.equal(res.statusCode, 500);
         assert.equal(res.body.success, false);
