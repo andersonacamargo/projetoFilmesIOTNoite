@@ -50,8 +50,11 @@ async function request(path) {
 }
 
 /**
- * GET /api/category-awards — premiações ganhas agrupadas por categoria.
+ * GET /api/category-awards/:ceremonyId — premiações ganhas agrupadas por
+ * categoria, só da cerimônia informada (categorias sem vencedor nessa
+ * edição não vêm na resposta).
  *
+ * @param {number} ceremonyId
  * @returns {Promise<Array<{
  *   categoryId: number,
  *   categoryName: string,
@@ -60,13 +63,45 @@ async function request(path) {
  *   winners: Array<object>
  * }>>}
  */
-export async function getCategoryAwards() {
+export async function getCategoryAwards(ceremonyId) {
   if (DATA_SOURCE === "planilha") {
     // Import dinâmico: o JSON (~1,3 MB) só é baixado quando este modo está ligado.
     const { default: data } = await import("../data/category-awards.json");
-    return data;
+
+    return data
+      .map((category) => {
+        const winners = category.winners.filter(
+          (winner) => winner.ceremony?.id === ceremonyId
+        );
+        return { ...category, winners, winsCount: winners.length };
+      })
+      .filter((category) => category.winsCount > 0);
   }
 
-  const { data } = await request("/category-awards");
+  const { data } = await request(`/category-awards/${ceremonyId}`);
+  return data ?? [];
+}
+
+/**
+ * GET /api/ceremonies — todas as cerimônias (id + ano), para o seletor de
+ * edição no topo da página. Independente da cerimônia selecionada.
+ *
+ * @returns {Promise<Array<{ id: number, year: string }>>}
+ */
+export async function getCeremonies() {
+  if (DATA_SOURCE === "planilha") {
+    const { default: data } = await import("../data/category-awards.json");
+    const byId = new Map();
+
+    for (const category of data) {
+      for (const winner of category.winners) {
+        if (winner.ceremony) byId.set(winner.ceremony.id, winner.ceremony);
+      }
+    }
+
+    return Array.from(byId.values()).sort((a, b) => a.id - b.id);
+  }
+
+  const { data } = await request("/ceremonies");
   return data ?? [];
 }

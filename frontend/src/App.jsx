@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Header from "./components/Header.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import StatsRibbon from "./components/StatsRibbon.jsx";
 import WinnersCatalog from "./components/WinnersCatalog.jsx";
 import { useCategoryAwards } from "./hooks/useCategoryAwards.js";
+import { useCeremonies } from "./hooks/useCeremonies.js";
 
 /** Contagens derivadas do payload da API — nenhum valor fixo no código. */
 function buildStats(categories) {
@@ -29,7 +30,21 @@ function buildStats(categories) {
 }
 
 export default function App() {
-  const { categories, loading, error, reload } = useCategoryAwards();
+  const { ceremonies } = useCeremonies();
+  const [selectedCeremonyId, setSelectedCeremonyId] = useState(null);
+
+  // Assim que a lista de cerimônias chega, seleciona a mais recente — a API
+  // não tem mais um modo "todas as edições" (/category-awards/:ceremonyId
+  // exige uma cerimônia), então a página sempre abre em uma edição concreta.
+  useEffect(() => {
+    if (selectedCeremonyId == null && ceremonies.length > 0) {
+      setSelectedCeremonyId(ceremonies[ceremonies.length - 1].id);
+    }
+  }, [ceremonies, selectedCeremonyId]);
+
+  // categories já vem filtrado pelo backend (GET /category-awards/:ceremonyId)
+  // — nenhuma filtragem de cerimônia acontece mais no front.
+  const { categories, loading, error, reload } = useCategoryAwards(selectedCeremonyId);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const menuButtonRef = useRef(null);
@@ -47,9 +62,16 @@ export default function App() {
     setDrawerOpen(false);
   }
 
+  // Ao trocar de edição, mantém a categoria escolhida se ela ainda existir
+  // nessa cerimônia; senão, o fallback abaixo cai pra primeira disponível.
+  function handleSelectCeremony(ceremonyId) {
+    setSelectedCeremonyId(ceremonyId);
+  }
+
   const stats = useMemo(() => buildStats(categories), [categories]);
 
-  // Antes da primeira escolha do usuário, mostra a primeira categoria da API.
+  // Antes da primeira escolha do usuário (ou quando a categoria escolhida
+  // não existe mais na cerimônia selecionada), mostra a primeira categoria.
   const selectedCategory = useMemo(
     () =>
       categories.find((category) => category.categoryId === selectedCategoryId) ??
@@ -64,6 +86,9 @@ export default function App() {
         drawerOpen={drawerOpen}
         onToggleDrawer={() => setDrawerOpen((open) => !open)}
         menuButtonRef={menuButtonRef}
+        ceremonies={ceremonies}
+        selectedCeremonyId={selectedCeremonyId}
+        onSelectCeremony={handleSelectCeremony}
       />
 
       <Sidebar
