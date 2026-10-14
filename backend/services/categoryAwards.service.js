@@ -68,6 +68,11 @@ import {
    * // }
    */
   export async function getWinsByCategory(id) {
+    const ceremonyId = Number(id);
+    if (!Number.isInteger(ceremonyId) || ceremonyId <= 0) {
+      throw new Error(`ceremonyId inválido: ${JSON.stringify(id)}`);
+    }
+
     try {
       const categories = await Category.findAll({
         attributes: ['id', 'name', 'class'],
@@ -76,7 +81,7 @@ import {
             model: Nomination,
             as: 'nominations',
             required: true,
-            where: { winner: true, ceremony_id: id },
+            where: { winner: true, ceremony_id: ceremonyId },
             attributes: ['id', 'category_label', 'note', 'citation'],
             include: [
               {
